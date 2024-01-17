@@ -1,0 +1,70 @@
+esphome:
+  name: electricmeter
+
+esp8266:
+  board: d1_mini
+
+# Enable logging
+logger:
+  level: DEBUG
+
+ota:
+  password: ""
+
+wifi:
+  ssid: "wifi ssid"
+  password: "wifi password"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Electricmeter Fallback Hotspot"
+    password: "LpCSTaMEorpN"
+
+captive_portal:
+
+
+mqtt:
+  broker: openhabian
+  #topic_prefix: elm
+  keepalive: 180s
+
+
+uart:
+  id: uart_bus
+  tx_pin: D5
+  rx_pin: D6
+  baud_rate: 9600
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+  debug:
+    direction: BOTH
+    sequence:
+      - lambda: UARTDebug::log_string(direction, bytes);
+
+sml:
+  id: mysml
+  uart_id: uart_bus
+
+sensor:
+  - platform: sml
+    sml_id: mysml
+    name: "Total energy in"
+    obis_code: "1-0:1.8.1"
+    unit_of_measurement: kWh
+    accuracy_decimals: 4
+    device_class: energy
+    state_class: total_increasing
+#    filters:
+#      - multiply: 0.0001
+#      - throttle: 300s
+
+  - platform: sml
+    name: "power consumption"
+    sml_id: mysml
+    icon: "mdi:lightning-bolt"
+    obis_code: "1-0:1.7.0"
+    unit_of_measurement: W
+    accuracy_decimals: 0
+    device_class: power
+    state_class: measurement
